@@ -581,6 +581,7 @@ class ActorTestRange:
         timestamp = datetime.now().strftime("%Y%m%d%H%M")
         path = rf"\\10.1.8.65\zgame\04——QA\全量投放\交互物全量投放_{timestamp}.xlsx"
         df.to_excel(path, index=False)
+        self.send_feishu_message(path)
 
     #输入分支名：master or stable
     def download_file(self):
@@ -591,6 +592,27 @@ class ActorTestRange:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
+
+
+    def send_feishu_message(self, file_path):
+        webhook_url = "https://open.feishu.cn/open-apis/bot/v2/hook/6cb5df5e-3f9b-4fe0-a7a2-466b64cdaa79"
+        # 时间戳
+        timestamp = datetime.now().strftime("%Y%m%d%H%M")
+        # 内网共享路径（飞书消息里也用原路径）
+        file_link = file_path.replace("\\", "/")  # 格式化一下路径
+        # 构造消息内容
+        message = {
+            "msg_type": "text",
+            "content": {
+                "text": f"交互物全量投放已生成：\n路径: file:{file_link}"
+            }
+        }
+        # 发送消息到飞书群
+        r = requests.post(webhook_url, json=message)
+        if r.status_code == 200:
+            print("飞书通知发送成功")
+        else:
+            print("飞书通知失败", r.text)
 
 
 import time
