@@ -6,9 +6,13 @@ import requests
 
 
 class ActorTestRange:
-    def __init__(self,branch_name,project_path):
-        self.project_path = project_path  #项目路径
+    def __init__(self,branch_name):
+        self.branch_dict = {
+            "master" : ["http://10.1.8.136:9010/gm/world/wd/loc_data/map_data_cooked/stats.details.xlsx","F:/master/"],
+            "stable" : ["http://10.1.7.114:9010/gm/world/wd/loc_data/map_data_cooked/stats.details.xlsx","F:/xiongzhicheng_QM1XZC-O-XiongZhiCheng_2830/"]
+        }
         self.branch_name = branch_name   #分支名
+        self.project_path = self.branch_dict[self.branch_name][1]  # 项目路径
         self.download_file()  #下载excel
         self.point_path = "./stats.details.xlsx"
         self.excel_path = f"{self.project_path}design/Excel"    #配置表路径
@@ -575,16 +579,12 @@ class ActorTestRange:
                 data.append([item_id, name, delivery_method, mechanism_list])
         df = pd.DataFrame(data, columns=["交互物id", "名字", "投放方式", "交互物机制"])
         timestamp = datetime.now().strftime("%Y%m%d%H%M")
-        path = f"D:/交互物全量投放_{timestamp}.xlsx"
+        path = rf"\\10.1.8.65\zgame\04——QA\全量投放\交互物全量投放_{timestamp}.xlsx"
         df.to_excel(path, index=False)
 
     #输入分支名：master or stable
     def download_file(self):
-        branch_dict = {
-            "master" : "http://10.1.8.136:9010/gm/world/wd/loc_data/map_data_cooked/stats.details.xlsx",
-            "stable" : "http://10.1.7.114:9010/gm/world/wd/loc_data/map_data_cooked/stats.details.xlsx"
-        }
-        url = branch_dict[self.branch_name]
+        url = self.branch_dict[self.branch_name][0]
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
             with open("stats.details.xlsx", 'wb') as f:
@@ -595,7 +595,7 @@ class ActorTestRange:
 
 import time
 start = time.time()
-K = ActorTestRange("stable","F:/xiongzhicheng_QM1XZC-O-XiongZhiCheng_2830/")
+K = ActorTestRange("stable")
 K.all_to_excel()
 end = time.time()
 print(end-start)
