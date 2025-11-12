@@ -591,7 +591,6 @@ class ActorTestRange:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-        print("\n下载完成!")
 
 
 import time
